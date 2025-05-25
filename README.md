@@ -11,12 +11,8 @@ Elle permet à l’utilisateur de poser des questions en français (ex. : "Qui a
 
 Ce projet vise à combiner les technologies de la Data (ETL, MySQL, HDFS), du NLP (LangChain) et d’interface (Gradio) pour créer une expérience utilisateur fluide et interactive.
 
----
 
 ## 📂 Architecture du projet
-
-## 📁 Architecture du projet
-
 ```text
 projet-rag-ecommerce/
 ├── data/                  ← Fichiers Excel d’entrée (ex: ventes_ecommerce.xlsx)
