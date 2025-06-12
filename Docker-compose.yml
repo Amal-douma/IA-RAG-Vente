@@ -1,3 +1,75 @@
+# #pour orchestre les services neccessaires mysql , app , hdfs 
+# services:
+#   mysql:
+#     image: mysql:8.0
+#     container_name: mysql
+#     restart: always
+#     environment:
+#       MYSQL_ROOT_PASSWORD: rootpassword
+#       MYSQL_DATABASE: ecommerce_db
+#       MYSQL_USER: appuser
+#       MYSQL_PASSWORD: appuserpassword
+#     ports:
+#       - "3307:3306"
+#     volumes:
+#       - mysql_data:/var/lib/mysql
+
+#   app:
+#     build:
+#       context: .
+#       dockerfile: Dockerfile
+#     container_name: app
+#     depends_on:
+#       - mysql
+#     ports:
+#       - "7860:7860"
+#     volumes:
+#       - .:/app
+#     environment:
+#       - PYTHONUNBUFFERED=1
+
+#   hdfs-namenode:
+#     image: bde2020/hadoop-namenode:2.0.0-hadoop2.7.4-java8
+#     container_name: hdfs-namenode
+#     environment:
+#       - CLUSTER_NAME=test
+#       - CORE_CONF_fs_defaultFS=hdfs://hdfs-namenode:9000
+#       - HDFS_CONF_dfs_namenode_name_dir=file:///hadoop/dfs/name
+#       - HDFS_CONF_dfs_permissions_enabled=false
+#     ports:
+#       - "9870:9870"
+#       - "9000:9000"
+#     volumes:
+#       - hdfs_namenode_data:/hadoop/dfs/name
+#     healthcheck:
+#       test: ["CMD", "curl", "-f", "http://localhost:9870"]
+#       interval: 30s
+#       timeout: 10s
+#       retries: 10
+
+#   hdfs-datanode:
+#     image: bde2020/hadoop-datanode:2.0.0-hadoop2.7.4-java8
+#     container_name: hdfs-datanode
+#     depends_on:
+#       - hdfs-namenode
+#     environment:
+#       - CORE_CONF_fs_defaultFS=hdfs://hdfs-namenode:9000
+#       - HDFS_CONF_dfs_datanode_data_dir=file:///hadoop/dfs/data
+#       - HDFS_CONF_dfs_permissions_enabled=false
+#     ports:
+#       - "9864:9864"
+#     volumes:
+#       - hdfs_datanode_data:/hadoop/dfs/data
+#     healthcheck:
+#       test: ["CMD", "curl", "-f", "http://localhost:9864"]
+#       interval: 30s
+#       timeout: 10s
+#       retries: 10
+
+# volumes:
+#   mysql_data:
+#   hdfs_namenode_data:
+#   hdfs_datanode_data:
 version: '3.8'
 
 services:
@@ -14,6 +86,74 @@ services:
       - "3307:3306"
     volumes:
       - mysql_data:/var/lib/mysql
+    networks:
+      - backend
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: app
+    depends_on:
+      - mysql
+      - hdfs-namenode
+      - hdfs-datanode
+    ports:
+      - "7860:7860"
+    volumes:
+      - .:/app
+    environment:
+      - PYTHONUNBUFFERED=1
+    networks:
+      - backend
+
+  hdfs-namenode:
+    image: bde2020/hadoop-namenode:2.0.0-hadoop3.2.1-java8
+    container_name: hdfs-namenode
+    environment:
+      - CLUSTER_NAME=test
+      - CORE_CONF_fs_defaultFS=hdfs://hdfs-namenode:9000
+      - HDFS_CONF_dfs_permissions_enabled=false
+      - HDFS_CONF_dfs_webhdfs_enabled=true   # <-- Ici, tu ajoutes cette ligne
+
+    ports:
+      - "9870:9870"  # Web UI
+      - "9000:9000"  # HDFS
+    volumes:
+      - hdfs_namenode_data:/hadoop/dfs/name
+    networks:
+      - backend
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9870"]
+      interval: 30s
+      timeout: 10s
+      retries: 10
+
+  hdfs-datanode:
+    image: bde2020/hadoop-datanode:2.0.0-hadoop3.2.1-java8
+    container_name: hdfs-datanode
+    depends_on:
+      - hdfs-namenode
+    environment:
+      - CORE_CONF_fs_defaultFS=hdfs://hdfs-namenode:9000
+      - HDFS_CONF_dfs_permissions_enabled=false
+      - HDFS_CONF_dfs_webhdfs_enabled=true
+    ports:
+      - "9864:9864"
+    volumes:
+      - hdfs_datanode_data:/hadoop/dfs/data
+    networks:
+      - backend
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9864"]
+      interval: 30s
+      timeout: 10s
+      retries: 10
 
 volumes:
   mysql_data:
+  hdfs_namenode_data:
+  hdfs_datanode_data:
+
+networks:
+  backend:

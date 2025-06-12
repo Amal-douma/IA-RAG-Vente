@@ -1,0 +1,8 @@
+pandas
+openpyxl
+mysql-connector-python
+gradio
+langchain
+sqlalchemy
+openai
+fpdf

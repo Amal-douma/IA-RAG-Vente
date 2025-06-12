@@ -1,21 +1,39 @@
-# Utiliser une image Python officielle basée sur Alpine
+# ✅ Utilise une image Python légère basée sur Alpine Linux
 FROM python:3.13-alpine
 
-# Définir le répertoire de travail dans le conteneur
+# ✅ Définit le répertoire de travail dans le conteneur
 WORKDIR /app
 
-# Copier le fichier des dépendances
+# ✅ Copie le fichier de dépendances dans le conteneur
 COPY requirements.txt .
 
-# Installer les dépendances (avec quelques packages nécessaires pour Alpine)
+# ✅ Installe les dépendances système nécessaires pour compiler certaines libs Python
+# Ensuite installe les dépendances Python
 RUN apk add --no-cache gcc musl-dev && \
     pip install --no-cache-dir -r requirements.txt
 
-# Copier tout le projet dans le conteneur
+# ✅ Copie tous les fichiers du projet dans le conteneur
 COPY . .
 
-# Exposer le port utilisé par Gradio (par défaut 7860)
+# ✅ Expose le port utilisé par Gradio
 EXPOSE 7860
 
-# Commande pour lancer l'application Gradio
+# ✅ Définit la commande par défaut pour lancer l’application
 CMD ["python", "frontend/app_interface.py"]
+
+
+# FROM python:3.11-alpine
+
+# WORKDIR /app
+
+# COPY requirements.txt .
+
+# RUN apk add --no-cache gcc musl-dev freetype-dev libjpeg-turbo-dev zlib-dev && \
+#     pip install --no-cache-dir -r requirements.txt
+
+# COPY . .
+
+# EXPOSE 7860
+
+# CMD ["python", "Frontend/app_interface.py"]
+

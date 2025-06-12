@@ -8,10 +8,10 @@ def load_to_mysql():
     cursor = None
 
     try:
-        # Establishing connection to MySQL
+        # Connexion à MySQL via le nom du service Docker
         connection = mysql.connector.connect(
-            host="127.0.0.1",
-            port=3307,  # Adjust port as per your Docker configuration
+            host="mysql",
+            port=3306,
             user="appuser",
             password="appuserpassword"
         )
@@ -21,10 +21,10 @@ def load_to_mysql():
         cursor.close()
         connection.close()
 
-        # Reconnect to the created database
+        # Reconnecter à la base créée
         connection = mysql.connector.connect(
-            host="127.0.0.1",
-            port=3307,
+            host="mysql",
+            port=3306,
             user="appuser",
             password="appuserpassword",
             database="ecommerce_db"
@@ -33,14 +33,17 @@ def load_to_mysql():
         cursor = connection.cursor()
         print("✅ Connexion réussie à la base de données.")
 
-        # Load Excel file
-        file_path = "../data/bd.xlsx"
+        # Charger le fichier Excel (chemin absolu dans le conteneur)
+        file_path = "/app/data/bd.xlsx"  # Chemin absolu basé sur le WORKDIR /app
+        if not os.path.exists(file_path):
+            print(f"❌ Fichier {file_path} introuvable.")
+            return
         df = pd.read_excel(file_path)
 
-        # Debugging: Print column names to verify
+        # Debugging: Afficher les colonnes pour vérifier
         print("Colonnes du DataFrame:", df.columns.tolist())
 
-        # Create table with appropriate columns
+        # Créer la table
         create_table_query = """
         CREATE TABLE IF NOT EXISTS ventes (
             id INT AUTO_INCREMENT PRIMARY KEY,
@@ -52,16 +55,14 @@ def load_to_mysql():
         """
         cursor.execute(create_table_query)
 
-        # Insert data into the table
+        # Insérer les données
         for _, row in df.iterrows():
             try:
-                # Map Excel columns to table columns
                 produit = row['Désignation'] if pd.notnull(row['Désignation']) else 'Unknown'
                 quantite = int(row['Quantité']) if pd.notnull(row['Quantité']) else 0
                 prix = float(row['Prix Unit HT']) if pd.notnull(row['Prix Unit HT']) else 0.0
                 date_vente = row['Date'] if pd.notnull(row['Date']) else None
 
-                # Ensure date_vente is in the correct format
                 if isinstance(date_vente, str):
                     date_vente = datetime.strptime(date_vente, '%Y-%m-%d').date()
                 elif not isinstance(date_vente, (datetime, type(None))):
@@ -94,4 +95,5 @@ def load_to_mysql():
             print("🔌 Connexion fermée.")
 
 if __name__ == "__main__":
+    import os  # Ajouter cette ligne pour utiliser os.path.exists
     load_to_mysql()
