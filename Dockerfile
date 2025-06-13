@@ -19,21 +19,4 @@ COPY . .
 EXPOSE 7860
 
 # ✅ Définit la commande par défaut pour lancer l’application
-CMD ["python", "frontend/app_interface.py"]
-
-
-# FROM python:3.11-alpine
-
-# WORKDIR /app
-
-# COPY requirements.txt .
-
-# RUN apk add --no-cache gcc musl-dev freetype-dev libjpeg-turbo-dev zlib-dev && \
-#     pip install --no-cache-dir -r requirements.txt
-
-# COPY . .
-
-# EXPOSE 7860
-
-# CMD ["python", "Frontend/app_interface.py"]
-
+CMD ["python", "Frontend/app_interface.py"]

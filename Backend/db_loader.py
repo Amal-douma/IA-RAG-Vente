@@ -97,3 +97,4 @@ def load_to_mysql():
 if __name__ == "__main__":
     import os  # Ajouter cette ligne pour utiliser os.path.exists
     load_to_mysql()
+    
