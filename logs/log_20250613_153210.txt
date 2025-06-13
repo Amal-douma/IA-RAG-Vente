@@ -1,0 +1,6 @@
+Question: chiffre affaires mensuel?
+Réponse: 2025-01 : 34031.91 TND
+2025-02 : 589505.95 TND
+2025-03 : 1473320.53 TND
+2025-04 : 801026.27 TND
+Timestamp: 20250613_153210

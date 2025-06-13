@@ -5,4 +5,5 @@ gradio
 langchain
 sqlalchemy
 openai
+hdfs
 
